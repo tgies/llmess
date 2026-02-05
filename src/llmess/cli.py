@@ -32,7 +32,7 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         prog="llmess",
         description="A less pager that uses LLMs to hallucinate infinite file continuations.",
-        epilog="When you scroll past the end of the file, llmess generates more content using your configured LLM.",
+        epilog="Scroll past EOF to generate more content using your configured LLM.",
     )
     parser.add_argument(
         "file",
@@ -155,7 +155,7 @@ def load_content(file_arg):
 
     # Case 3: File argument provided
     try:
-        with open(file_arg, "r", encoding="utf-8", errors="replace") as f:
+        with open(file_arg, encoding="utf-8", errors="replace") as f:
             return f.readlines(), file_arg
     except FileNotFoundError:
         print(f"llmess: {file_arg}: No such file or directory", file=sys.stderr)
@@ -178,7 +178,7 @@ def reopen_tty_for_curses():
     """
     if not sys.stdin.isatty():
         try:
-            with open("/dev/tty", "r") as tty:
+            with open("/dev/tty") as tty:
                 os.dup2(tty.fileno(), sys.stdin.fileno())
         except OSError as e:
             print(f"llmess: cannot open terminal for input: {e}", file=sys.stderr)
@@ -278,7 +278,8 @@ def main(argv=None):
 
     # Import here to avoid curses initialization issues
     import curses
-    from .pager import run_pager, check_llm_available
+
+    from .pager import check_llm_available, run_pager
 
     # Resolve system prompt
     # Priority: -s (explicit) > -B (base mode) > default (instruct prompt)

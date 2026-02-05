@@ -119,7 +119,7 @@ def get_continuation(context, model=None, system=None, context_limit=None,
             error_msg = " ".join(stderr.strip().split())
             # Provide helpful suggestions for common errors
             if "No key found" in error_msg or "API key" in error_msg:
-                return [], "No LLM configured. Run: llm keys set <provider> or llm models default <model>"
+                return [], "No LLM configured. Run: llm keys set <provider>"
             elif "No model" in error_msg:
                 return [], "No default model. Run: llm models default <model>"
             return [], f"llm error: {error_msg}"
@@ -375,7 +375,9 @@ def prefetch_worker(lines, model, system, prefetch_state, context_limit=None,
     """
     try:
         context = "".join(lines)
-        new_lines, error = get_continuation(context, model, system, context_limit, max_tokens, options)
+        new_lines, error = get_continuation(
+            context, model, system, context_limit, max_tokens, options
+        )
 
         if error:
             prefetch_state.finish_generation(error)
@@ -526,9 +528,13 @@ def run_pager(stdscr, lines, source_name, model=None, system=None,
         prefetching = False
         if prefetch_state:
             prefetching = prefetch_state.is_generating()
-            if not prefetching and should_prefetch(scroll_pos, content_height,
-                                                    len(wrapped), prefetch_screens):
-                start_prefetch(lines, model, system, prefetch_state, context_limit, max_tokens, options)
+            if not prefetching and should_prefetch(
+                scroll_pos, content_height, len(wrapped), prefetch_screens
+            ):
+                start_prefetch(
+                    lines, model, system, prefetch_state,
+                    context_limit, max_tokens, options
+                )
                 prefetching = True
 
         # Display wrapped lines
@@ -619,7 +625,9 @@ def run_pager(stdscr, lines, source_name, model=None, system=None,
                             stdscr.attroff(curses.A_REVERSE)
                         stdscr.refresh()
 
-                    status_error = generate_sync(lines, model, system, context_limit, max_tokens, options)
+                    status_error = generate_sync(
+                        lines, model, system, context_limit, max_tokens, options
+                    )
                     generating = False
 
         elif key == curses.KEY_PPAGE or key == ord("b"):
@@ -655,7 +663,9 @@ def run_pager(stdscr, lines, source_name, model=None, system=None,
                             stdscr.attroff(curses.A_REVERSE)
                         stdscr.refresh()
 
-                    status_error = generate_sync(lines, model, system, context_limit, max_tokens, options)
+                    status_error = generate_sync(
+                        lines, model, system, context_limit, max_tokens, options
+                    )
                     generating = False
 
         elif key == ord("g"):
@@ -730,7 +740,8 @@ def run_pager(stdscr, lines, source_name, model=None, system=None,
                     wrapped = wrap_lines(lines, width)
                     search_matches = find_matches(wrapped, search_term)
                     if search_matches:
-                        scroll_pos = max(0, min(search_matches[0][0], len(wrapped) - content_height))
+                        match_line = search_matches[0][0]
+                        scroll_pos = max(0, min(match_line, len(wrapped) - content_height))
                 # else: base mode, no match - status bar will show "not found"
 
         elif key == ord("n"):

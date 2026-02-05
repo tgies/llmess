@@ -2,9 +2,16 @@
 
 import sys
 
-from llmess.cli import parse_args, get_model, get_options
-from llmess.pager import (wrap_lines, build_status_bar, should_prefetch, PrefetchState,
-                          DEFAULT_CONTEXT_LIMIT, find_matches, augment_system_for_search)
+from llmess.cli import get_model, get_options, parse_args
+from llmess.pager import (
+    DEFAULT_CONTEXT_LIMIT,
+    PrefetchState,
+    augment_system_for_search,
+    build_status_bar,
+    find_matches,
+    should_prefetch,
+    wrap_lines,
+)
 
 
 class TestParseArgs:
