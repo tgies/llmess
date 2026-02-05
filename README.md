@@ -114,7 +114,7 @@ echo "Hello world" | llmess
 # → Generates content containing "password", jumps to match
 ```
 
-This requires a system prompt (the default). With `-s` (no system prompt), search behaves normally.
+This requires a system prompt (the default). With `-B` (base mode), search behaves normally.
 
 ## Base Models vs. Instruct Models
 
