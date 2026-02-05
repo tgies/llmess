@@ -2,7 +2,9 @@
 
 import sys
 
-from llmess.cli import get_model, get_options, parse_args
+import pytest
+
+from llmess.cli import get_model, get_options, load_content, parse_args
 from llmess.pager import (
     DEFAULT_CONTEXT_LIMIT,
     PrefetchState,
@@ -277,6 +279,57 @@ class TestGetOptions:
         result_dict = {k: v for k, v in result}
         assert result_dict["temperature"] == "0.7"
         assert result_dict["max_tokens"] == "500"
+
+
+class TestLoadContent:
+    """Tests for file loading."""
+
+    def test_load_file(self, tmp_path):
+        """Loads content from a file."""
+        f = tmp_path / "test.txt"
+        f.write_text("line1\nline2\n")
+        lines, name = load_content(str(f))
+        assert lines == ["line1\n", "line2\n"]
+        assert name == str(f)
+
+    def test_load_file_no_trailing_newline(self, tmp_path):
+        """Handles files without trailing newline."""
+        f = tmp_path / "test.txt"
+        f.write_text("line1\nline2")
+        lines, name = load_content(str(f))
+        assert lines == ["line1\n", "line2"]
+
+    def test_load_file_empty(self, tmp_path):
+        """Handles empty files."""
+        f = tmp_path / "empty.txt"
+        f.write_text("")
+        lines, name = load_content(str(f))
+        assert lines == []
+        assert name == str(f)
+
+    def test_file_not_found(self):
+        """Exits with error for nonexistent file."""
+        with pytest.raises(SystemExit) as exc_info:
+            load_content("/nonexistent/path/file.txt")
+        assert exc_info.value.code == 1
+
+    def test_is_directory(self, tmp_path):
+        """Exits with error when given a directory."""
+        with pytest.raises(SystemExit) as exc_info:
+            load_content(str(tmp_path))
+        assert exc_info.value.code == 1
+
+    def test_permission_denied(self, tmp_path):
+        """Exits with error for unreadable file."""
+        f = tmp_path / "secret.txt"
+        f.write_text("secret")
+        f.chmod(0o000)
+        try:
+            with pytest.raises(SystemExit) as exc_info:
+                load_content(str(f))
+            assert exc_info.value.code == 1
+        finally:
+            f.chmod(0o644)  # Restore for cleanup
 
 
 class TestWrapLines:
