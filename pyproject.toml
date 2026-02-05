@@ -42,3 +42,15 @@ llmess = "llmess.cli:main"
 [project.urls]
 Homepage = "https://github.com/tgies/llmess"
 Repository = "https://github.com/tgies/llmess"
+
+[tool.ruff]
+target-version = "py38"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+]
