@@ -1,8 +1,6 @@
 """Tests for llmess."""
 
-import os
 import sys
-import pytest
 
 from llmess.cli import parse_args, get_model, get_options
 from llmess.pager import (wrap_lines, build_status_bar, should_prefetch, PrefetchState,
